@@ -2,3 +2,4 @@ node_modules/
 dist/
 .env
 server/learnx.db
+server/data/
