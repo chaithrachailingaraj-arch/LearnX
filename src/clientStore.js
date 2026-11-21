@@ -1,139 +1,298 @@
-// In-browser mock engine for static deployments (e.g. GitHub Pages)
+// In-browser mock engine and database for LearnX Teacher & Student Module
 
 export const clientStore = {
+  // Current logged in user (starts as demo teacher or student)
   currentUser: {
-    id: 1,
-    name: 'Asha Rao',
-    email: 'student@learnx.org',
-    role: 'student',
-    language: 'en',
-    grade_level: 'Grade 7'
+    id: 2,
+    name: 'Prof. Ananya Sharma',
+    email: 'teacher@learnx.org',
+    role: 'teacher',
+    phone: '+91 98765 43210',
+    school_name: 'National Academy of Science & Arts',
+    subject_specialization: 'Mathematics & Foundational Sciences',
+    teacher_id_code: 'TCH-1042',
+    language: 'en'
   },
-  attempts: [
-    { id: 1, user_id: 1, topic: 'Fractions', score: 2, total: 3, rootCauses: ['LCM_DENOMINATOR_MISCONCEPTION'], createdAt: new Date(Date.now() - 86400000 * 3).toISOString() },
-    { id: 2, user_id: 1, topic: 'Basic algebra', score: 1, total: 3, rootCauses: ['INVERSE_OPERATIONS_ORDER'], createdAt: new Date(Date.now() - 86400000 * 2).toISOString() },
-    { id: 3, user_id: 1, topic: 'Reading comprehension', score: 3, total: 3, rootCauses: [], createdAt: new Date(Date.now() - 86400000 * 1).toISOString() },
-    { id: 4, user_id: 1, topic: 'Fractions', score: 3, total: 3, rootCauses: [], createdAt: new Date().toISOString() }
+
+  // 1. Teachers
+  teachers: [
+    {
+      id: 2,
+      name: 'Prof. Ananya Sharma',
+      email: 'teacher@learnx.org',
+      phone: '+91 98765 43210',
+      school_name: 'National Academy of Science & Arts',
+      subject_specialization: 'Mathematics & Foundational Sciences',
+      teacher_id_code: 'TCH-1042',
+      password: 'teacher123',
+      created_at: '2026-01-10T10:00:00Z'
+    }
   ],
-  studyPlans: [
+
+  // 2. Students
+  students: [
     {
       id: 1,
-      user_id: 1,
-      topic: 'Basic algebra',
-      root_cause: 'Inverse Operations Order',
-      daily_minutes: 30,
-      schedule_json: JSON.stringify([
-        { time: '10 min', phase: 'Concept Drill', task: 'Review: Isolating variables using opposite operations (+ to -, × to ÷)' },
-        { time: '12 min', phase: 'Guided Practice', task: 'Solve 4 one-step & two-step equations with step-by-step checks' },
-        { time: '8 min', phase: 'Check-in Quiz', task: 'Take a quick 3-question mastery check' }
-      ]),
-      completed_blocks: [0],
-      created_at: new Date().toISOString()
+      name: 'Asha Rao',
+      email: 'student@learnx.org',
+      student_id_code: 'STU-2024-001',
+      class_semester: 'Grade 7 - Sem 1',
+      course_dept: 'Science & Mathematics',
+      registration_date: '2026-01-15',
+      last_login: '2026-11-21 15:30',
+      total_quizzes: 5,
+      average_score: 82.5,
+      learning_progress: 85,
+      weak_topics: ['LCM Common Denominators'],
+      needs_support: false,
+      quiz_history: [
+        { quiz_title: 'Linear Equations Challenge', score: 35, total_marks: 40, percentage: 87.5, passed: true, date: '2026-11-20 14:10' },
+        { quiz_title: 'Fractions Diagnostic', score: 28, total_marks: 30, percentage: 93.3, passed: true, date: '2026-11-18 11:25' },
+        { quiz_title: 'Reading Comprehension', score: 20, total_marks: 20, percentage: 100.0, passed: true, date: '2026-11-15 09:40' }
+      ]
+    },
+    {
+      id: 5,
+      name: 'Rahul Verma',
+      email: 'rahul@learnx.org',
+      student_id_code: 'STU-2024-002',
+      class_semester: 'Grade 7 - Sem 1',
+      course_dept: 'Science & Mathematics',
+      registration_date: '2026-01-18',
+      last_login: '2026-11-20 12:00',
+      total_quizzes: 3,
+      average_score: 48.0,
+      learning_progress: 45,
+      weak_topics: ['Inverse Operations', 'Negative Sign Rules'],
+      needs_support: true,
+      quiz_history: [
+        { quiz_title: 'Linear Equations Challenge', score: 18, total_marks: 40, percentage: 45.0, passed: false, date: '2026-11-19 16:30' },
+        { quiz_title: 'Fractions Diagnostic', score: 15, total_marks: 30, percentage: 50.0, passed: false, date: '2026-11-17 10:15' }
+      ]
+    },
+    {
+      id: 6,
+      name: 'Sneha Kulkarni',
+      email: 'sneha@learnx.org',
+      student_id_code: 'STU-2024-003',
+      class_semester: 'Grade 7 - Sem 1',
+      course_dept: 'Humanities & Languages',
+      registration_date: '2026-02-01',
+      last_login: '2026-11-21 11:15',
+      total_quizzes: 4,
+      average_score: 91.0,
+      learning_progress: 92,
+      weak_topics: [],
+      needs_support: false,
+      quiz_history: [
+        { quiz_title: 'Reading Comprehension Master', score: 30, total_marks: 30, percentage: 100.0, passed: true, date: '2026-11-20 18:00' },
+        { quiz_title: 'Scientific Method', score: 18, total_marks: 20, percentage: 90.0, passed: true, date: '2026-11-16 13:45' }
+      ]
+    },
+    {
+      id: 7,
+      name: 'Karthik Nair',
+      email: 'karthik@learnx.org',
+      student_id_code: 'STU-2024-004',
+      class_semester: 'Grade 8 - Sem 2',
+      course_dept: 'Science & Mathematics',
+      registration_date: '2026-02-10',
+      last_login: '2026-11-19 09:10',
+      total_quizzes: 4,
+      average_score: 74.0,
+      learning_progress: 70,
+      weak_topics: ['Fraction of Whole'],
+      needs_support: false,
+      quiz_history: [
+        { quiz_title: 'Linear Equations Challenge', score: 30, total_marks: 40, percentage: 75.0, passed: true, date: '2026-11-18 15:20' }
+      ]
+    },
+    {
+      id: 8,
+      name: 'Priya Patel',
+      email: 'priya@learnx.org',
+      student_id_code: 'STU-2024-005',
+      class_semester: 'Grade 8 - Sem 2',
+      course_dept: 'Commerce & General',
+      registration_date: '2026-02-14',
+      last_login: '2026-11-18 16:45',
+      total_quizzes: 2,
+      average_score: 42.0,
+      learning_progress: 35,
+      weak_topics: ['LCM Denominator Misconception'],
+      needs_support: true,
+      quiz_history: [
+        { quiz_title: 'Fractions Diagnostic', score: 12, total_marks: 30, percentage: 40.0, passed: false, date: '2026-11-17 14:10' }
+      ]
     }
   ],
-  classrooms: [
-    { id: 1, code: 'MATH7A', name: 'Grade 7 Math & Reading Section A', teacher_id: 2, subject: 'Foundational Math & Language', created_at: new Date().toISOString() }
-  ],
-  aiFlags: []
-};
 
-export const clientQuestions = {
-  Fractions: [
+  // 3. Quizzes (Custom Teacher Quizzes)
+  quizzes: [
     {
-      id: 'frac-1',
-      difficulty: 'foundational',
-      subtopic: 'Unlike Denominators Addition',
-      question: 'What is 1/2 + 1/4?',
-      choices: ['2/6', '3/4', '1/6', '2/4'],
-      answer: 1,
-      explain: 'To add fractions with different denominators, find the common denominator (4). 1/2 is 2/4. Then 2/4 + 1/4 = 3/4. Do not add the bottom numbers together!',
-      rootCauseNote: 'Common mistake: Adding denominators (2+4=6). Denominators tell you the size of the slice.'
+      id: 101,
+      teacher_id: 2,
+      title: 'Linear Equations Mastery Challenge',
+      subject: 'Basic algebra',
+      topic: 'One-step and Two-step Linear Equations',
+      class_semester: 'Grade 7 - Sem 1',
+      difficulty: 'Medium',
+      description: 'Comprehensive test on inverse operations, signs, and variable isolation techniques.',
+      time_limit: 25,
+      total_marks: 40.0,
+      passing_percentage: 60.0,
+      status: 'published',
+      deadline: '2026-12-15',
+      created_at: '2026-11-15',
+      questions: [
+        {
+          id: 1,
+          question_type: 'mcq',
+          prompt: 'Solve for x: 3x + 9 = 27',
+          options: ['4', '6', '9', '12'],
+          correct_answer: '6',
+          marks: 10.0,
+          explanation: 'Subtract 9 from both sides: 3x = 18. Divide by 3: x = 6.'
+        },
+        {
+          id: 2,
+          question_type: 'true_false',
+          prompt: 'True or False: Addition and Subtraction are inverse operations in algebra.',
+          options: ['True', 'False'],
+          correct_answer: 'True',
+          marks: 10.0,
+          explanation: 'Addition undoes subtraction and vice versa.'
+        },
+        {
+          id: 3,
+          question_type: 'fill_blank',
+          prompt: 'If 2y = 16, then the value of y is ____.',
+          options: [],
+          correct_answer: '8',
+          marks: 10.0,
+          explanation: 'Divide both sides by 2: y = 8.'
+        },
+        {
+          id: 4,
+          question_type: 'short_answer',
+          prompt: 'Explain the first step to isolate x in the equation x/4 - 3 = 5.',
+          options: [],
+          correct_answer: 'Add 3 to both sides',
+          marks: 10.0,
+          explanation: 'Add 3 to both sides to get x/4 = 8, then multiply both sides by 4.'
+        }
+      ]
     },
     {
-      id: 'frac-2',
-      difficulty: 'foundational',
-      subtopic: 'Equivalent Fractions',
-      question: 'Which fraction is equal to 2/3?',
-      choices: ['4/6', '3/5', '2/6', '5/6'],
-      answer: 0,
-      explain: 'Multiply both top and bottom by 2: (2×2)/(3×2) = 4/6.',
-      rootCauseNote: 'Equivalent fractions keep the same value when top and bottom are multiplied by the same non-zero number.'
-    },
-    {
-      id: 'frac-3',
-      difficulty: 'standard',
-      subtopic: 'Fraction of a Whole',
-      question: 'What is 3/4 of 20?',
-      choices: ['12', '15', '16', '17'],
-      answer: 1,
-      explain: 'Divide 20 by 4 = 5. Then multiply by 3 = 15.',
-      rootCauseNote: 'Fraction of a quantity: (Whole ÷ Denominator) × Numerator.'
+      id: 102,
+      teacher_id: 2,
+      title: 'Fractions & Proportions Benchmark',
+      subject: 'Fractions',
+      topic: 'Unlike Denominators & GCF',
+      class_semester: 'Grade 7 - Sem 1',
+      difficulty: 'Hard',
+      description: 'Benchmark assessment to evaluate LCM calculation and fraction addition skills.',
+      time_limit: 20,
+      total_marks: 30.0,
+      passing_percentage: 70.0,
+      status: 'published',
+      deadline: '2026-12-20',
+      created_at: '2026-11-18',
+      questions: [
+        {
+          id: 5,
+          question_type: 'mcq',
+          prompt: 'What is 2/3 + 1/6 in simplest form?',
+          options: ['3/9', '5/6', '3/6', '4/6'],
+          correct_answer: '5/6',
+          marks: 15.0,
+          explanation: 'LCM is 6: 4/6 + 1/6 = 5/6.'
+        },
+        {
+          id: 6,
+          question_type: 'true_false',
+          prompt: 'True or False: You should add denominators together when adding fractions.',
+          options: ['True', 'False'],
+          correct_answer: 'False',
+          marks: 15.0,
+          explanation: 'Never add denominators; convert to common denominator first.'
+        }
+      ]
     }
   ],
-  'Basic algebra': [
+
+  // 4. Study Materials
+  studyMaterials: [
     {
-      id: 'alg-1',
-      difficulty: 'foundational',
-      subtopic: 'One-step Linear Equations',
-      question: 'Solve for x: x + 5 = 12',
-      choices: ['5', '6', '7', '17'],
-      answer: 2,
-      explain: 'To undo adding 5, subtract 5 from each side: x = 12 - 5 = 7.',
-      rootCauseNote: 'Inverse operation rule: Undo addition with subtraction.'
+      id: 201,
+      teacher_id: 2,
+      title: 'Algebra Fundamentals & Sign Rules Cheat Sheet',
+      subject: 'Basic algebra',
+      topic: 'Inverse Operations & PEMDAS',
+      class_semester: 'Grade 7 - Sem 1',
+      description: 'Comprehensive quick-reference summary of order of operations, negative numbers, and variable isolation steps.',
+      file_name: 'Algebra_CheatSheet_Grade7.pdf',
+      file_type: 'pdf',
+      file_size_kb: 345.0,
+      downloads_count: 18,
+      created_at: '2026-11-10'
     },
     {
-      id: 'alg-2',
-      difficulty: 'foundational',
-      subtopic: 'Multiplicative Linear Equations',
-      question: 'Solve for x: 3x = 18',
-      choices: ['3', '6', '15', '21'],
-      answer: 1,
-      explain: 'Divide each side by 3: 18 ÷ 3 = 6.',
-      rootCauseNote: 'When a number is next to a variable (3x), it represents multiplication.'
+      id: 202,
+      teacher_id: 2,
+      title: 'Fractions & Decimals Visual Concept Guide',
+      subject: 'Fractions',
+      topic: 'Unlike Denominators & LCM',
+      class_semester: 'Grade 7 - Sem 1',
+      description: 'Visual step-by-step pie charts and bar models demonstrating common denominator conversion.',
+      file_name: 'Fractions_Visual_Guide.pdf',
+      file_type: 'pdf',
+      file_size_kb: 512.0,
+      downloads_count: 24,
+      created_at: '2026-11-12'
     },
     {
-      id: 'alg-3',
-      difficulty: 'standard',
-      subtopic: 'Expression Evaluation & Substitution',
-      question: 'If y = 4, what is 2y + 3?',
-      choices: ['11', '14', '8', '10'],
-      answer: 0,
-      explain: 'PEMDAS: Multiply first (2 × 4 = 8), then add 3: 8 + 3 = 11.',
-      rootCauseNote: 'Order of Operations: Multiplication precedes addition.'
+      id: 203,
+      teacher_id: 2,
+      title: 'Scientific Method & Variable Control Presentation',
+      subject: 'Science & Logic',
+      topic: 'Independent vs Dependent Variables',
+      class_semester: 'Grade 7 - Sem 1',
+      description: 'Slides explaining how to isolate variables and avoid experimental bias in trial testing.',
+      file_name: 'Scientific_Variables_Lecture.pptx',
+      file_type: 'pptx',
+      file_size_kb: 1240.0,
+      downloads_count: 15,
+      created_at: '2026-11-16'
     }
   ],
-  'Reading comprehension': [
+
+  // 5. Announcements
+  announcements: [
     {
-      id: 'read-1',
-      difficulty: 'foundational',
-      subtopic: 'Main Idea Identification',
-      question: 'A paragraph’s main idea is best described as…',
-      choices: ['A small supporting fact', 'The central point of the paragraph', 'A new vocabulary word', 'The final punctuation mark'],
-      answer: 1,
-      explain: 'The main idea is the central umbrella thought that all other sentences support.',
-      rootCauseNote: 'Don’t confuse a supporting detail with the core thesis.'
+      id: 301,
+      teacher_id: 2,
+      title: 'Midterm Diagnostic Quiz Scheduled',
+      content: 'Please review Chapter 3 on Linear Equations before Wednesday. Check the study materials tab for the new formula sheet.',
+      target_class: 'Grade 7 - Sem 1',
+      priority: 'important',
+      teacher_name: 'Prof. Ananya Sharma',
+      created_at: '2026-11-20 09:30'
     },
     {
-      id: 'read-2',
-      difficulty: 'standard',
-      subtopic: 'Context Clues & Vocabulary',
-      question: 'Which clue most effectively helps you deduce an unfamiliar word’s meaning?',
-      choices: ['Words and sentences surrounding the unfamiliar word', 'The length of the paragraph', 'The font style of the text', 'The date the article was published'],
-      answer: 0,
-      explain: 'Surrounding words, synonyms, and contrasting statements give context clues.',
-      rootCauseNote: 'Context clues provide meaning within the text.'
+      id: 302,
+      teacher_id: 2,
+      title: 'Free 1-on-1 Tutoring Office Hours',
+      content: 'Special office hours to review LCM and common denominators this Thursday from 4:00 PM to 5:30 PM in Room 204 or online.',
+      target_class: 'All Classes',
+      priority: 'normal',
+      teacher_name: 'Prof. Ananya Sharma',
+      created_at: '2026-11-18 14:00'
     }
   ],
-  'Science & Logic': [
-    {
-      id: 'sci-1',
-      difficulty: 'foundational',
-      subtopic: 'Scientific Method & Variables',
-      question: 'In a plant growth test, sunlight hours are changed while soil and water stay constant. Sunlight is the…',
-      choices: ['Dependent variable', 'Independent variable', 'Controlled variable', 'Hypothesis'],
-      answer: 1,
-      explain: 'The independent variable is the single factor intentionally changed by the scientist.',
-      rootCauseNote: 'Independent Variable = "What I change". Dependent Variable = "What is measured".'
-    }
+
+  // Feedback messages sent to students
+  studentFeedbackNotes: [
+    { student_id: 5, note: 'Rahul, please review the Algebra cheat sheet before attempting quiz 2.', sent_at: '2026-11-20' }
   ]
 };

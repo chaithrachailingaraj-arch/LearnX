@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, Navigate, Route, Routes, useNavigate, useLocation } from 'react-router-dom';
 import { api } from './api.js';
+import TeacherModule from './TeacherModule.jsx';
 
 // Multi-language strings
 const words = {
@@ -133,7 +134,7 @@ export default function App() {
       });
       setUser(res.user);
       navigate(
-        role === 'teacher' ? '/classrooms' :
+        role === 'teacher' ? '/teacher' :
         role === 'parent' ? '/child-view' :
         role === 'admin' ? '/admin' : '/dashboard'
       );
@@ -162,7 +163,7 @@ export default function App() {
       {/* Top Bar Navigation */}
       <header className="topbar">
         <div className="topbar-left">
-          <Link className="brand" to={user ? (user.role === 'teacher' ? '/classrooms' : user.role === 'parent' ? '/child-view' : user.role === 'admin' ? '/admin' : '/dashboard') : '/'}>
+          <Link className="brand" to={user ? (user.role === 'teacher' ? '/teacher' : user.role === 'parent' ? '/child-view' : user.role === 'admin' ? '/admin' : '/dashboard') : '/'}>
             <span className="brand-mark">L</span>
             <span className="brand-name">Learn<span className="brand-accent">X</span></span>
           </Link>
@@ -185,7 +186,7 @@ export default function App() {
             )}
             {user.role === 'teacher' && (
               <>
-                <Link to="/classrooms">{t.classrooms}</Link>
+                <Link to="/teacher">📊 Teacher Dashboard & Quizzes</Link>
                 <Link to="/gap-finder">{t.gapFinder} Radar</Link>
                 <Link to="/practice">Test Practice</Link>
               </>
@@ -199,7 +200,7 @@ export default function App() {
             {user.role === 'admin' && (
               <>
                 <Link to="/admin">{t.adminPanel}</Link>
-                <Link to="/classrooms">Classes</Link>
+                <Link to="/teacher">Teacher Module</Link>
                 <Link to="/dashboard">Learner View</Link>
               </>
             )}
@@ -256,7 +257,9 @@ export default function App() {
         <Route path="/practice" element={user ? <PracticeView user={user} t={t} setError={setError} /> : <Navigate to="/" />} />
         <Route path="/study-plan" element={user ? <StudyPlanView user={user} t={t} setError={setError} /> : <Navigate to="/" />} />
         <Route path="/progress" element={user ? <ProgressView user={user} t={t} setError={setError} /> : <Navigate to="/" />} />
-        <Route path="/classrooms" element={user ? <TeacherDashboard user={user} t={t} setError={setError} /> : <Navigate to="/" />} />
+        <Route path="/teacher/*" element={<TeacherModule user={user} onLogout={signOut} />} />
+        <Route path="/teacher" element={<TeacherModule user={user} onLogout={signOut} />} />
+        <Route path="/classrooms" element={<TeacherModule user={user} onLogout={signOut} />} />
         <Route path="/child-view" element={user ? <ParentDashboard user={user} t={t} setError={setError} /> : <Navigate to="/" />} />
         <Route path="/admin" element={user ? <AdminDashboard user={user} t={t} setError={setError} /> : <Navigate to="/" />} />
         <Route path="*" element={<Navigate to={user ? '/dashboard' : '/'} />} />
@@ -464,14 +467,85 @@ function StudentDashboard({ user, t, setError }) {
   const [enrollMsg, setEnrollMsg] = useState('');
   const [freeHours, setFreeHours] = useState(30);
 
+  // Teacher Module integrations
+  const [announcements, setAnnouncements] = useState([]);
+  const [assignedQuizzes, setAssignedQuizzes] = useState([]);
+  const [assignedMaterials, setAssignedMaterials] = useState([]);
+  const [takingQuiz, setTakingQuiz] = useState(null);
+  const [quizTimer, setQuizTimer] = useState(0);
+  const [quizAnswers, setQuizAnswers] = useState({});
+  const [quizResult, setQuizResult] = useState(null);
+  const [submittingQuiz, setSubmittingQuiz] = useState(false);
+
   useEffect(() => {
-    Promise.all([api('/progress'), api('/topics'), api('/gap-finder/analysis')])
-      .then(([progress, topicData, gapAnalysis]) => {
+    Promise.all([
+      api('/progress'),
+      api('/topics'),
+      api('/gap-finder/analysis'),
+      api('/announcements').catch(() => ({ announcements: [] })),
+      api('/students/quizzes').catch(() => ({ quizzes: [] })),
+      api('/students/materials').catch(() => ({ materials: [] }))
+    ])
+      .then(([progress, topicData, gapAnalysis, annData, qData, matData]) => {
         setData({ ...progress, topics: topicData.topics, metadata: topicData.metadata });
         setGapData(gapAnalysis);
+        setAnnouncements(annData.announcements || []);
+        setAssignedQuizzes(qData.quizzes || []);
+        setAssignedMaterials(matData.materials || []);
       })
       .catch(e => setError(e.message));
   }, []);
+
+  // Timer countdown for active quiz
+  useEffect(() => {
+    if (!takingQuiz || quizResult || quizTimer <= 0) return;
+    const interval = setInterval(() => {
+      setQuizTimer(prev => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          submitQuizAttempt();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [takingQuiz, quizResult, quizTimer]);
+
+  async function startQuiz(quizSummary) {
+    try {
+      const res = await api(`/teachers/quizzes/${quizSummary.id}`);
+      setTakingQuiz(res.quiz || quizSummary);
+      setQuizTimer((res.quiz?.time_limit || 20) * 60);
+      setQuizAnswers({});
+      setQuizResult(null);
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function submitQuizAttempt() {
+    if (!takingQuiz) return;
+    setSubmittingQuiz(true);
+    try {
+      const answersArray = (takingQuiz.questions || []).map((q, idx) => quizAnswers[idx] || '');
+      const res = await api(`/students/quizzes/${takingQuiz.id}/submit`, {
+        method: 'POST',
+        body: JSON.stringify({ answers: answersArray })
+      });
+      setQuizResult(res);
+      api('/progress').then(p => setData(prev => ({ ...prev, ...p }))).catch(() => {});
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setSubmittingQuiz(false);
+    }
+  }
+
+  async function downloadMaterial(m) {
+    await api(`/materials/${m.id}/download`, { method: 'POST' }).catch(() => {});
+    alert(`Downloading "${m.file_name}" (${m.file_size_kb} KB).\nInstructor: ${m.teacher_name}\nSubject: ${m.subject}`);
+  }
 
   async function joinClassroom(e) {
     e.preventDefault();
